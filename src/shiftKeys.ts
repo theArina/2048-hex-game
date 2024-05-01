@@ -1,10 +1,13 @@
-const { x, y, z } = { // indexes
+import { ShiftKeys } from './types';
+
+// indexes
+const { x, y, z } = {
   x: 0,
   y: 1,
   z: 2,
 };
 
-const keys = {
+const shiftKeys: ShiftKeys = {
   // north-west (top-left)
   KeyQ: { // 81
     [x]: false, // decrease (-1)
@@ -37,4 +40,4 @@ const keys = {
   },
 };
 
-export default keys;
+export default shiftKeys;

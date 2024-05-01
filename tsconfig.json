@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    // Compile to a version of ECMAScript that supports modern features,
+    "target": "esnext",
+    // Use a module system compatible with dynamic imports and other features,
+    "module": "esnext",
+    // Include type definitions for DOM and latest ECMAScript features,
+    "lib": [
+      "dom",
+      "esnext"
+    ],
+    // Support JSX syntax for React version 17+,
+    "jsx": "react-jsx",
+    // Mimic Node.js' module resolution,
+    "moduleResolution": "node",
+    // Enable all strict type-checking options,
+    "strict": true,
+    // Allow default imports from modules with no default export,
+    "esModuleInterop": true,
+    // Skip type checking of declaration files,
+    "skipLibCheck": true,
+    // Disallow inconsistently-cased references to the same file,
+    "forceConsistentCasingInFileNames": true,
+    // Do not output files (useful when Babel is used for transpiling),
+    "noEmit": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noEmitOnError": true
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

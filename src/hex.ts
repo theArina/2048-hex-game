@@ -4,13 +4,13 @@ import constants from './constants.json';
 
 const { MIN_FONT_SIZE } = constants;
 
-function render({ svg, numbers, showCoordinates = false }) {
+function render({ svg, points, showCoordinates = false }) {
   const position = this.toPoint();
   const centerPosition = this.center().add(position);
   const { q: x, s: y, r: z } = this.toCube(this);
   const coordinates = [x, y, z].join(',');
 
-  const pointValue = numbers[coordinates];
+  const pointValue = points[coordinates];
   const pointStringValue = pointValue?.toString() || '';
 
   svg

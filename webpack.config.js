@@ -2,16 +2,16 @@ const HtmlWebPackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   mode: 'development',
-  entry: './src/index.jsx',
+  entry: './src/index.tsx',
   module: {
     rules: [
       {
-        test: /\.(js|jsx)$/,
+        test: /\.(ts|tsx)$/,
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['@babel/preset-env', '@babel/preset-react']
+            presets: ['@babel/preset-env', '@babel/preset-react', '@babel/preset-typescript']
           }
         }
       },
@@ -22,7 +22,7 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: ['.jsx', '.js']
+    extensions: ['.tsx', '.ts', '.js']
   },
   output: {
     filename: 'bundle.js',
