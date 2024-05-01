@@ -1,6 +1,6 @@
 {
   "name": "hex-2048",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Game 2048 on a hexagonal field",
   "main": "src/index.tsx",
   "author": "Arina M",
