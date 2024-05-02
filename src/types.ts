@@ -1,9 +1,10 @@
+import { Grid, Hex } from 'honeycomb-grid';
+import { Svg } from '@svgdotjs/svg.js';
 import Actions from './Actions';
 
 export enum ReducerActionType {
   'init',
   'toggleShowCoordinates',
-  'setPointsMaxSize',
   'radiusChanged',
   'handleKeyUp',
 }
@@ -26,15 +27,14 @@ export type CoordinateArray = [
 export type Point = Coordinate & {
   pointValue: PointValue;
 };
-export type Hex = any;
 
 export interface State {
+  grid: Grid<Hex>;
+  svg: Svg;
   radius: number;
   gameStatus: GameStatus;
   points: PointsMap;
-  pointsMaxSize: number;
   showCoordinates: boolean;
-  hex: Hex;
   actions?: Actions;
   info?: string;
 }
