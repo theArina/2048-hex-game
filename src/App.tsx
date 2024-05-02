@@ -1,8 +1,9 @@
-import React, { useReducer, useRef, useEffect } from 'react';
-import { reducer, initialState } from './reducer';
+import React, { useEffect, useReducer, useRef } from 'react';
+import { initialState, reducer } from './reducer';
 import { SVG } from '@svgdotjs/svg.js';
-import { defineGrid } from 'honeycomb-grid';
+import { Grid, spiral } from 'honeycomb-grid';
 import { ReducerActionType, State } from './types';
+import { render as renderSVG } from './hex';
 
 const App: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -53,18 +54,19 @@ const App: React.FC = () => {
   useEffect(
     () => {
       const gameField = gameFieldRef.current;
-      const svg = SVG().addTo(gameField).size('100%', '100%')
+      const svg = SVG().addTo(gameField).size('100%', '100%');
       svg.attr('viewBox', viewBox);
-      const grid = defineGrid(hex)
-        .hexagon({
-          radius: radius - 1,
-          center: [0, 0],
-          onCreate: (he) => {
-            return he.render({ svg, points, showCoordinates });
-          },
-        });
 
-      dispatch({ type: ReducerActionType.setPointsMaxSize, value: grid.length });
+      const grid = new Grid(hex, spiral({
+        radius: radius - 1,
+        start: [0, 0],
+      }));
+
+      grid.forEach((hex) => {
+        renderSVG({ svg, hex, points, showCoordinates });
+      });
+
+      dispatch({ type: ReducerActionType.setPointsMaxSize, value: grid.size });
 
       if (gameStatus !== 'Game over') {
         document.addEventListener('keyup', handleKeyUp);

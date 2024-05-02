@@ -1,29 +1,27 @@
-import { extendHex } from 'honeycomb-grid';
+import { defineHex, hexToPoint, Orientation } from 'honeycomb-grid';
 import palette from './palette.json';
 import constants from './constants.json';
 
 const { MIN_FONT_SIZE } = constants;
 
-function render({ svg, points, showCoordinates = false }) {
-  const position = this.toPoint();
-  const centerPosition = this.center().add(position);
-  const { q: x, s: y, r: z } = this.toCube(this);
+export function render({ hex, svg, points, showCoordinates = false }) {
+  const position = hexToPoint(hex);
+  const { q: x, s: y, r: z } = hex;
   const coordinates = [x, y, z].join(',');
 
   const pointValue = points[coordinates];
   const pointStringValue = pointValue?.toString() || '';
 
   const polygon = svg
-    .polygon(this.corners().map(({ x, y }) => `${x},${y}`))
+    .polygon(hex.corners.map(({ x, y }) => `${x},${y}`))
     .fill(palette[pointStringValue])
     .stroke({ width: 1, color: palette.line })
-    .translate(position.x, position.y)
     .attr('data-x', x)
     .attr('data-y', y)
     .attr('data-z', z)
     .attr('data-value', pointValue || 0);
 
-  const size = this.center().x;
+  const size = hex.width / 2;
   const calculatedFontSize = size / 2.5;
   const fontSize = calculatedFontSize < MIN_FONT_SIZE ? MIN_FONT_SIZE : calculatedFontSize;
 
@@ -34,7 +32,7 @@ function render({ svg, points, showCoordinates = false }) {
       anchor: 'middle',
       fill: pointValue >= 8 ? palette.text.light : palette.text.dark,
     })
-    .translate(centerPosition.x, centerPosition.y + fontSize / 4);
+    .translate(position.x, position.y + fontSize / 4);
 
   svg
     .group()
@@ -43,9 +41,9 @@ function render({ svg, points, showCoordinates = false }) {
 }
 
 export function createHex(ratio = 1) {
-  return extendHex({
-    orientation: 'flat',
-    size: 100 * ratio,
-    render,
+  return defineHex({
+    orientation: Orientation.FLAT,
+    dimensions: 100 * ratio,
+    origin: 'topLeft',
   });
 }
