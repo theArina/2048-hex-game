@@ -1,6 +1,6 @@
 import React, { useReducer, useRef, useEffect } from 'react';
 import { reducer, initialState } from './reducer';
-import SVG from 'svg.js';
+import { SVG } from '@svgdotjs/svg.js';
 import { defineGrid } from 'honeycomb-grid';
 import { ReducerActionType, State } from './types';
 
@@ -53,7 +53,7 @@ const App: React.FC = () => {
   useEffect(
     () => {
       const gameField = gameFieldRef.current;
-      const svg = SVG(gameField);
+      const svg = SVG().addTo(gameField).size('100%', '100%')
       svg.attr('viewBox', viewBox);
       const grid = defineGrid(hex)
         .hexagon({

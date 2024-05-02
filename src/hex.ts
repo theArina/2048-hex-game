@@ -13,7 +13,7 @@ function render({ svg, points, showCoordinates = false }) {
   const pointValue = points[coordinates];
   const pointStringValue = pointValue?.toString() || '';
 
-  svg
+  const polygon = svg
     .polygon(this.corners().map(({ x, y }) => `${x},${y}`))
     .fill(palette[pointStringValue])
     .stroke({ width: 1, color: palette.line })
@@ -27,14 +27,19 @@ function render({ svg, points, showCoordinates = false }) {
   const calculatedFontSize = size / 2.5;
   const fontSize = calculatedFontSize < MIN_FONT_SIZE ? MIN_FONT_SIZE : calculatedFontSize;
 
-  svg
+  const text = svg
     .text(showCoordinates ? coordinates : pointStringValue)
     .font({
       size: fontSize,
       anchor: 'middle',
       fill: pointValue >= 8 ? palette.text.light : palette.text.dark,
     })
-    .translate(centerPosition.x, centerPosition.y - fontSize);
+    .translate(centerPosition.x, centerPosition.y + fontSize / 4);
+
+  svg
+    .group()
+    .add(polygon)
+    .add(text);
 }
 
 export function createHex(ratio = 1) {
