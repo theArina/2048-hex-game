@@ -5,7 +5,7 @@ import Actions from './Actions';
 export enum ReducerActionType {
   'init',
   'toggleShowCoordinates',
-  'radiusChanged',
+  'changeRadius',
   'handleKeyUp',
 }
 

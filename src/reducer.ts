@@ -2,11 +2,8 @@ import shiftKeys from './shiftKeys';
 import { getRandomPoints } from './utils';
 import Actions from './Actions';
 import { Point, PointsMap, PointValue, ReducerAction, ReducerActionType, State } from './types';
-import constants from './constants.json';
 import { createGrid } from './grid';
 import { SVG, Svg } from '@svgdotjs/svg.js';
-
-const { GAME_OVER_INFO } = constants;
 
 export const initialState: State = {
   radius: 2,
@@ -15,6 +12,7 @@ export const initialState: State = {
   showCoordinates: false,
   grid: null, // TODO
   svg: null,
+  info: null,
 } as State;
 
 const mapPoints = (points: Point[]): PointsMap => {
@@ -42,33 +40,39 @@ const didLose = (points: PointsMap, pointsMaxSize: number, actions: Actions): bo
   return !actions.areThereMovesLeft(points);
 };
 
-const getRadiusFromUrl = (): number => {
-  const url = new URL(window.location.href);
-  const { searchParams } = url;
-  let radiusToSet = searchParams.get('radius') || '';
-  if (!/^[2-7]$/.test(radiusToSet)) {
-    radiusToSet = initialState.radius.toString();
-    searchParams.set('radius', radiusToSet);
-    url.search = searchParams.toString();
-    window.location.href = url.href; // TODO
-  }
-  return parseInt(radiusToSet);
+const getNewPoints = (radius: number, prevPoints: PointsMap): PointsMap => {
+  const prevUnmappedPoints = unmapPoints(prevPoints);
+  const newPoints = getRandomPoints(radius, prevUnmappedPoints);
+  return mapPoints(newPoints);
 };
 
 export const reducer = (state: State, action: ReducerAction): State => {
   switch (action.type) {
     case ReducerActionType.init: {
-      const radius = getRadiusFromUrl();
-      const prevPoints = unmapPoints(initialState.points);
-      const newPoints = getRandomPoints(radius, prevPoints);
-      const newMappedPoints = mapPoints(newPoints);
+      const {
+        gameField,
+        radius = initialState.radius,
+      }: {
+        gameField: HTMLDivElement,
+        radius: number,
+      } = action;
+      const radiusRatio = 1 - radius / 10;
+      const viewBox = [0, -(radius * radiusRatio * 150), 300 * radiusRatio, 800].join(' ');
+      const svg: Svg = SVG().addTo(gameField).size('100%', '100%');
+      svg.attr('viewBox', viewBox);
+      const grid = createGrid({
+        radius,
+        radiusRatio,
+      });
+      const points = getNewPoints(radius, initialState.points);
       return {
         ...state,
-        info: null,
-        points: {
-          ...newMappedPoints,
-        },
+        points,
+        grid,
+        svg,
         radius,
+        info: initialState.info,
+        gameStatus: initialState.gameStatus,
         actions: new Actions(radius),
       } as State;
     }
@@ -87,46 +91,33 @@ export const reducer = (state: State, action: ReducerAction): State => {
           ...state,
           points: { ...shiftedPoints },
           gameStatus: 'Game over',
-          info: `YOU WON! ${GAME_OVER_INFO}`,
+          info: `YOU WON!`,
         } as State;
       }
-      const prevPoints = unmapPoints(shiftedPoints);
-      const newPoints = getRandomPoints(radius, prevPoints);
-      const newMappedPoints = mapPoints(newPoints);
+      const newPoints = getNewPoints(radius, shiftedPoints);
       const newState = {
         ...state,
         info: null,
         points: {
           ...shiftedPoints,
-          ...newMappedPoints,
+          ...newPoints,
         },
       };
       if (didLose(newState.points, state.grid.size, state.actions as Actions)) {
         return {
           ...newState,
           gameStatus: 'Game over',
-          info: `YOU LOST :( ${GAME_OVER_INFO}`,
+          info: `YOU LOST :(`,
         } as State;
       }
       return newState as State;
     }
-    case ReducerActionType.radiusChanged: {
-      const { gameField }: { gameField: HTMLDivElement } = action;
-      const { radius }: { radius: number } = state;
-      const radiusRatio = 1 - radius / 10;
-      const viewBox = [0, -(radius * radiusRatio * 150), 300 * radiusRatio, 800].join(' ');
-      const svg: Svg = SVG().addTo(gameField).size('100%', '100%');
-      svg.attr('viewBox', viewBox);
-      // TODO: maybe init this in the init state and only if radius really changed recreate again
-      const grid = createGrid({
-        radius,
-        radiusRatio,
-      });
+    case ReducerActionType.changeRadius: {
+      const { radius }: { radius: number } = action;
       return {
         ...state,
-        grid,
-        svg,
-      } as State;
+        radius,
+      };
     }
     case ReducerActionType.toggleShowCoordinates: {
       return {
