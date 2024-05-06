@@ -12,8 +12,8 @@ export default class Actions {
 
   constructor(radius: number) {
     this._radius = radius;
-    // this._shift = {};
-    // this._points = ;
+    this._shift = {};
+    this._points = {};
     this._wereShifts = false;
   }
 
@@ -23,7 +23,7 @@ export default class Actions {
       .map((it, i) => {
         if (typeof this._shift[i] === 'undefined') return it;
         return it + (this._shift[i] ? step : -step);
-      });
+      }) as CoordinateArray;
   }
 
   _getNext(coordinates: CoordinateArray): ActionPoint {
@@ -86,11 +86,11 @@ export default class Actions {
   }
 
   _getUnformattedPoints(points: PointsMap): ActionPointsMap {
-    const unformatted = {};
+    const unformatted: ActionPointsMap = {};
     for (const [coordinatesString, pointValue] of Object.entries(points)) {
       unformatted[coordinatesString] = {
         pointValue,
-        coordinates: coordinatesString.split(',').map((it) => parseInt(it)),
+        coordinates: coordinatesString.split(',').map((it) => parseInt(it)) as CoordinateArray,
         didChange: false,
       };
     }
@@ -98,7 +98,7 @@ export default class Actions {
   }
 
   _getFormattedPoints(points: ActionPointsMap): PointsMap {
-    const formatted = {};
+    const formatted: PointsMap = {};
     for (const [key, { pointValue }] of Object.entries(points)) {
       formatted[key] = pointValue;
     }

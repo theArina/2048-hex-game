@@ -35,6 +35,7 @@ module.exports = {
     compress: true,
     port: 3000
   },
+  devtool: 'source-map',
   plugins: [
     new HtmlWebPackPlugin({
       template: 'src/index.html'

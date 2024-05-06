@@ -18,7 +18,7 @@ const App: React.FC = () => {
   const gameFieldRef: React.Ref<HTMLDivElement> = useRef(null);
   const radiusSliderRef: React.Ref<HTMLInputElement> = useRef(null);
 
-  const handleKeyUp = useCallback(({ code }): void => {
+  const handleKeyUp = useCallback(({ code }: KeyboardEvent): void => {
     dispatch({
       type: ReducerActionType.handleKeyUp,
       code,
@@ -103,7 +103,7 @@ const App: React.FC = () => {
         <input
           type="checkbox"
           id="show-coordinates"
-          value={showCoordinates}
+          checked={showCoordinates}
           onChange={handleShowCoordinates}
         />
         <label htmlFor="show-coordinates">

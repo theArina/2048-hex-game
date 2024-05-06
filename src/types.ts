@@ -29,13 +29,13 @@ export type Point = Coordinate & {
 };
 
 export interface State {
-  grid: Grid<Hex>;
+  grid: Grid<Hex>; // TODO
   svg: Svg;
   radius: number;
   gameStatus: GameStatus;
   points: PointsMap;
   showCoordinates: boolean;
-  actions?: Actions;
+  actions: Actions;
   info?: string;
 }
 

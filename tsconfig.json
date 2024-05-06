@@ -16,16 +16,18 @@
     // Enable all strict type-checking options,
     "strict": true,
     // Allow default imports from modules with no default export,
-    "esModuleInterop": true,
+    "esModuleInterop": false,
     // Skip type checking of declaration files,
-    "skipLibCheck": true,
+    "skipLibCheck": false,
     // Disallow inconsistently-cased references to the same file,
     "forceConsistentCasingInFileNames": true,
     // Do not output files (useful when Babel is used for transpiling),
     "noEmit": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
-    "noEmitOnError": true
+    "noEmitOnError": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": [
     "src/**/*"

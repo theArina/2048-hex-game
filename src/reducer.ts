@@ -10,13 +10,13 @@ export const initialState: State = {
   gameStatus: 'Playing',
   points: {},
   showCoordinates: false,
-  grid: null, // TODO
+  grid: null,
   svg: null,
-  info: null,
-} as State;
+  info: '',
+}; // TODO
 
 const mapPoints = (points: Point[]): PointsMap => {
-  const mappedPoints = {};
+  const mappedPoints: PointsMap = {};
   if (Array.isArray(points)) {
     points.forEach(({ x, y, z, pointValue }) => {
       const key = [x, y, z].join(',');
@@ -52,9 +52,6 @@ export const reducer = (state: State, action: ReducerAction): State => {
       const {
         gameField,
         radius = initialState.radius,
-      }: {
-        gameField: HTMLDivElement,
-        radius: number,
       } = action;
       const radiusRatio = 1 - radius / 10;
       const viewBox = [0, -(radius * radiusRatio * 150), 300 * radiusRatio, 800].join(' ');
@@ -91,7 +88,7 @@ export const reducer = (state: State, action: ReducerAction): State => {
           ...state,
           points: { ...shiftedPoints },
           gameStatus: 'Game over',
-          info: `YOU WON!`,
+          info: 'YOU WON!',
         } as State;
       }
       const newPoints = getNewPoints(radius, shiftedPoints);
@@ -103,17 +100,17 @@ export const reducer = (state: State, action: ReducerAction): State => {
           ...newPoints,
         },
       };
-      if (didLose(newState.points, state.grid.size, state.actions as Actions)) {
+      if (didLose(newState.points, state.grid.size, state.actions)) {
         return {
           ...newState,
           gameStatus: 'Game over',
-          info: `YOU LOST :(`,
-        } as State;
+          info: 'YOU LOST :(',
+        };
       }
       return newState as State;
     }
     case ReducerActionType.changeRadius: {
-      const { radius }: { radius: number } = action;
+      const { radius } = action;
       return {
         ...state,
         radius,

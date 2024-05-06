@@ -1,8 +1,8 @@
-import { defineHex, Grid, hexToPoint, Orientation, spiral, Hex, Traverser } from 'honeycomb-grid';
+import { defineHex, Grid, hexToPoint, Orientation, spiral, Hex, Traverser, } from 'honeycomb-grid';
 import palette from './palette.json';
 import constants from './constants.json';
 import { PointsMap } from './types';
-import { Svg } from '@svgdotjs/svg.js';
+import { Svg, PointArrayAlias } from '@svgdotjs/svg.js';
 
 const { MIN_FONT_SIZE } = constants;
 
@@ -20,7 +20,7 @@ export const renderHex = ({ hex, svg, points, showCoordinates = false }: {
   const pointStringValue = pointValue?.toString() || '';
 
   const polygon = svg
-    .polygon(hex.corners.map(({ x, y }) => [x, y]))
+    .polygon(hex.corners.map(({ x, y }) => [x, y]) as PointArrayAlias)
     .fill(palette[pointStringValue])
     .stroke({ width: 1, color: palette.line })
     .attr('data-x', x)
@@ -51,7 +51,7 @@ export const createGrid = ({ radius, radiusRatio }: {
   radius: number;
   radiusRatio: number;
 }): Grid<Hex> => {
-  const hex: Hex = defineHex({
+  const hex: typeof Hex = defineHex({
     orientation: Orientation.FLAT,
     dimensions: 100 * radiusRatio,
     origin: 'topLeft',

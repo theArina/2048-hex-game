@@ -1,6 +1,6 @@
 import { Point, Coordinate } from './types';
 
-const applyFunctionInRange = (limit: number, f): void => {
+const applyFunctionInRange = (limit: number, f: (n: number) => void): void => {
   Array.from(
     { length: limit * 2 + 1 },
     (_, x) => limit - x,
@@ -8,11 +8,11 @@ const applyFunctionInRange = (limit: number, f): void => {
 };
 
 const getFieldCoordinates = (n: number): Coordinate[] => {
-  const coordinates = [];
+  const coordinates: Coordinate[] = [];
   const limit = n - 1;
-  applyFunctionInRange(limit, x => {
-    applyFunctionInRange(limit, y => {
-      applyFunctionInRange(limit, z => {
+  applyFunctionInRange(limit, (x) => {
+    applyFunctionInRange(limit, (y) => {
+      applyFunctionInRange(limit, (z) => {
         if (x + y + z === 0) {
           coordinates.push({ x, y, z });
         }
@@ -31,7 +31,7 @@ const selectRandomElements = <T>(array: T[], count: number): T[] => {
 };
 
 const arePointsSame = (a: Coordinate, b: Coordinate): boolean => {
-  return !['x', 'y', 'z'].some(it => a[it] !== b[it]);
+  return !['x', 'y', 'z'].some((it) => a[it] !== b[it]);
 };
 
 export const getRandomPoints = (radius: number, points: Point[]): Point[] => {
