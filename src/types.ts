@@ -58,6 +58,6 @@ export type ActionPoint = {
   pointValue: PointValue;
   didChange: boolean;
 };
-export type ActionPointsMap = PointsMap & {
-  didChange: boolean;
+export type ActionPointsMap = {
+  [coordinatesString: string]: ActionPoint;
 };

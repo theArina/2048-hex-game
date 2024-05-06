@@ -6,14 +6,14 @@ const { WIN_VALUE } = constants;
 
 export default class Actions {
   private _radius: number;
-  private _shift: ShiftKeyMap | {};
-  private _points: ActionPointsMap | {};
+  private _shift: ShiftKeyMap;
+  private _points: ActionPointsMap;
   private _wereShifts: boolean;
 
   constructor(radius: number) {
     this._radius = radius;
-    this._shift = {};
-    this._points = {};
+    // this._shift = {};
+    // this._points = ;
     this._wereShifts = false;
   }
 
@@ -28,10 +28,10 @@ export default class Actions {
 
   _getNext(coordinates: CoordinateArray): ActionPoint {
     const newCoordinates = this._getShiftedCoordinates(coordinates);
-    const { point, didChange } = this._points[newCoordinates.join(',')] || {}
+    const { pointValue, didChange } = this._points?.[newCoordinates.join(',')] || {};
     return {
       coordinates: newCoordinates,
-      pointValue: point,
+      pointValue,
       didChange,
     };
   }
@@ -40,85 +40,67 @@ export default class Actions {
     return coordinates.some((it) => Math.abs(it) >= this._radius);
   }
 
-  _didReachCellWithDifferentValue({ nextPoint, point }: {
-    nextPoint: PointValue;
-    point: PointValue;
-  }): boolean {
-    return !!nextPoint && nextPoint !== point;
+  _didReachCellWithDifferentValue(nextPointValue: PointValue, currentPointValue: PointValue): boolean {
+    return !!nextPointValue && nextPointValue !== currentPointValue;
   }
 
-  _isCellExistAndEmpty({ point, coordinates }: ActionPoint): boolean {
-    return !point && !this._areCoordinatesOutOfRange(coordinates);
+  _isCellExistAndEmpty({ pointValue, coordinates }: ActionPoint): boolean {
+    return !pointValue && !this._areCoordinatesOutOfRange(coordinates);
   }
 
-  _isNextPointValueSame({ point, next }: {
-    point: PointValue;
-    next: ActionPoint;
-  }): boolean {
+  _isNextPointValueSame(next: ActionPoint, current: ActionPoint): boolean {
     const nextNext = this._getNext(next.coordinates);
-    return next.pointValue === point
+    return next.pointValue === current.pointValue
       && (
-        nextNext.pointValue === point
+        nextNext.pointValue === current.pointValue
         || this._isCellExistAndEmpty(nextNext)
       );
   }
 
-  _shouldStopShifting({ next, point, didChange }: {
-    next: ActionPoint;
-    point: PointValue;
-    didChange: boolean;
-  }): boolean {
-    return (didChange && !!next.pointValue)
+  _shouldStopShifting(next: ActionPoint, current: ActionPoint): boolean {
+    return (current.didChange && !!next.pointValue)
       || next.didChange
       || this._areCoordinatesOutOfRange(next.coordinates)
-      || this._didReachCellWithDifferentValue({ nextPoint: next.pointValue, point })
-      || this._isNextPointValueSame({ point, next });
+      || this._didReachCellWithDifferentValue(next.pointValue, current.pointValue)
+      || this._isNextPointValueSame(next, current);
   }
 
-  _getShiftedCoordinatesAndValue({ coordinates, didChange, point, wereShifts = false }: {
-    coordinates: CoordinateArray;
-    didChange: boolean;
-    point: PointValue;
-    wereShifts?: boolean;
-  }): {
-    newCoordinates: CoordinateArray;
-    newValue: { point: PointValue; didChange: boolean; };
+  _getShiftedCoordinatesAndValue(point: ActionPoint, wereShifts: boolean): ActionPoint & {
     wereShifts: boolean;
   } {
-    const next = this._getNext(coordinates);
-    if (this._shouldStopShifting({ next, point, didChange })) {
+    const next = this._getNext(point.coordinates);
+    if (this._shouldStopShifting(next, point)) {
       return {
-        newCoordinates: coordinates,
-        newValue: { point, didChange },
+        ...point,
         wereShifts,
       };
     }
 
-    const shouldMerge = next.pointValue === point;
+    const shouldMerge = next.pointValue === point.pointValue;
 
     return this._getShiftedCoordinatesAndValue({
-      wereShifts: true,
       coordinates: next.coordinates,
-      point: shouldMerge ? point * 2 : point,
-      didChange: didChange || shouldMerge,
-    });
+      pointValue: shouldMerge ? point.pointValue * 2 : point.pointValue,
+      didChange: point.didChange || shouldMerge,
+    }, true);
   }
 
-  _getUnformattedPoints(points: PointsMap): ActionPointsMap | {} {
+  _getUnformattedPoints(points: PointsMap): ActionPointsMap {
     const unformatted = {};
-    for (const [key, point] of Object.entries(points)) {
-      unformatted[key] = {
-        point,
+    for (const [coordinatesString, pointValue] of Object.entries(points)) {
+      unformatted[coordinatesString] = {
+        pointValue,
+        coordinates: coordinatesString.split(',').map((it) => parseInt(it)),
         didChange: false,
       };
     }
     return unformatted;
   }
 
-  _getFormattedPoints(points: ActionPointsMap | {}): PointsMap {
+  _getFormattedPoints(points: ActionPointsMap): PointsMap {
     const formatted = {};
-    for (const [key, { point }] of Object.entries(points)) {
-      formatted[key] = point;
+    for (const [key, { pointValue }] of Object.entries(points)) {
+      formatted[key] = pointValue;
     }
     return formatted;
   }
@@ -128,20 +110,14 @@ export default class Actions {
     wereShifts: boolean;
     didWin: boolean;
   } {
-    for (const [coordinatesString, pointValue] of Object.entries(this._points)) {
-      const coordinates: CoordinateArray = coordinatesString.split(',').map((it) => parseInt(it));
-      const { point, didChange } = pointValue;
-      const { newCoordinates, newValue, wereShifts } = this._getShiftedCoordinatesAndValue({
-        coordinates,
-        point,
-        didChange,
-      });
-      if (!wereShifts) continue;
+    for (const [coordinatesString, actionPoint] of Object.entries(this._points)) {
+      const newActionPoint = this._getShiftedCoordinatesAndValue(actionPoint, false);
+      if (!newActionPoint.wereShifts) continue;
       this._wereShifts = true;
-      const newCoordinatesString = newCoordinates.join(',');
-      this._points[newCoordinatesString] = newValue;
+      const newCoordinatesString = newActionPoint.coordinates.join(',');
+      this._points[newCoordinatesString] = newActionPoint;
       delete this._points[coordinatesString];
-      if (newValue.point === WIN_VALUE) {
+      if (newActionPoint.pointValue === WIN_VALUE) {
         return {
           shiftedPoints: this._getFormattedPoints(this._points),
           wereShifts: this._wereShifts,
